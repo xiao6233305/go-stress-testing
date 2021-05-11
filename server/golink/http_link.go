@@ -2,21 +2,37 @@
 package golink
 
 import (
-	"sync"
-
 	"go-stress-testing/model"
 	"go-stress-testing/server/client"
+	"sync"
+	"sync/atomic"
 )
+var RequestNum,totalNums int32
+
+
 
 // HTTP 请求
 func HTTP(chanID uint64, ch chan<- *model.RequestResults, totalNumber uint64, wg *sync.WaitGroup,
-	request *model.Request) {
+	request []*model.Request) {
 	defer func() {
 		wg.Done()
 	}()
+
 	// fmt.Printf("启动协程 编号:%05d \n", chanID)
 	for i := uint64(0); i < totalNumber; i++ {
-		list := getRequestList(request)
+
+			// 利用原子操作来保证每一个都被请求到
+			for {
+				if atomic.CompareAndSwapInt32(&totalNums, totalNums, totalNums+1){
+					break
+				}
+			}
+		if totalNums >= RequestNum {
+			return
+		}
+		randNum := totalNums
+
+		list := getRequestList(request[randNum])
 		isSucceed, errCode, requestTime, contentLength := sendList(list)
 		requestResults := &model.RequestResults{
 			Time:          requestTime,

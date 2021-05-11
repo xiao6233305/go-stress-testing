@@ -202,6 +202,36 @@ func NewRequest(url string, verify string, timeout time.Duration, debug bool, pa
 	return
 }
 
+func NewRequestMult(url string, verify string, timeout time.Duration, debug bool, path,method string) ([]*Request, error) {
+	data, err := ParseMultFile(path)
+	if err != nil {
+		return nil, err
+	}
+	if url == "" {
+		return nil, errors.New("url is empty")
+	}
+	method = strings.ToUpper(method)
+	requests := make([]*Request, 0, len(data))
+	for i := 0; i < len(data); i++ {
+		tmpUrl := url
+		if method == `GET`{
+			tmpUrl = url+data[i]
+		}
+		request := &Request{
+			URL:  tmpUrl,
+			Form: `http`,
+			// Verify:   `statusCode`,
+			Method:  method,
+			Body:    data[i],
+			Verify:  verify,
+			Timeout: timeout,
+			Debug:   debug,
+		}
+		requests = append(requests,request)
+	}
+	return requests,nil
+}
+
 // getHeaderValue 获取 header
 func getHeaderValue(v string, headers map[string]string) {
 	index := strings.Index(v, ":")

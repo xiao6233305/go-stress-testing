@@ -2,12 +2,10 @@
 package server
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
 	"go-stress-testing/model"
-	"go-stress-testing/server/client"
 	"go-stress-testing/server/golink"
 	"go-stress-testing/server/statistics"
 	"go-stress-testing/server/verify"
@@ -29,21 +27,25 @@ func init() {
 }
 
 // Dispose 处理函数
-func Dispose(concurrency, totalNumber uint64, request *model.Request) {
+func Dispose(concurrency, totalNumber uint64, request []*model.Request) {
 	// 设置接收数据缓存
 	ch := make(chan *model.RequestResults, 1000)
 	var (
 		wg          sync.WaitGroup // 发送数据完成
 		wgReceiving sync.WaitGroup // 数据处理完成
 	)
+	golink.RequestNum = int32(len(request))
 	wgReceiving.Add(1)
 	go statistics.ReceivingResults(concurrency, ch, &wgReceiving)
 	for i := uint64(0); i < concurrency; i++ {
 		wg.Add(1)
+		go golink.HTTP(i, ch, totalNumber, &wg, request)
+		/**
 		switch request.Form {
 		case model.FormTypeHTTP:
 			go golink.HTTP(i, ch, totalNumber, &wg, request)
-		case model.FormTypeWebSocket:
+
+			case model.FormTypeWebSocket:
 			switch connectionMode {
 			case 1:
 				// 连接以后再启动协程
@@ -81,10 +83,12 @@ func Dispose(concurrency, totalNumber uint64, request *model.Request) {
 				continue
 			}
 			go golink.Grpc(i, ch, totalNumber, &wg, request, ws)
+
 		default:
 			// 类型不支持
 			wg.Done()
 		}
+		**/
 	}
 	// 等待所有的数据都发送完成
 	wg.Wait()

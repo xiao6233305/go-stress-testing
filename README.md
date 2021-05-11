@@ -456,7 +456,7 @@ Usage of ./go-stress-testing-mac:
   -v string
       验证方法 http 支持:statusCode、json webSocket支持:json
   -p string
-      curl文件路径
+      curl文件路径  每个参数一行
 ```
 
 - `-n` 是单个用户请求的次数，请求总次数 = `-c`* `-n`， 这里考虑的是模拟用户行为，所以这个是每个用户请求的次数

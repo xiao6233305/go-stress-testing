@@ -35,6 +35,7 @@ var (
 	verify             = ""      // verify 验证方法 在server/verify中 http 支持:statusCode、json webSocket支持:json
 	headers     array            // 自定义头信息传递给服务器
 	body        = ""             // HTTP POST方式传送数据
+	method      = "get"			  // method
 )
 
 func init() {
@@ -44,6 +45,7 @@ func init() {
 	flag.StringVar(&requestURL, "u", requestURL, "压测地址")
 	flag.StringVar(&path, "p", path, "curl文件路径")
 	flag.StringVar(&verify, "v", verify, "验证方法 http 支持:statusCode、json webSocket支持:json")
+	flag.StringVar(&method, "m", method, "method http get post")
 	flag.Var(&headers, "H", "自定义头信息传递给服务器 示例:-H 'Content-Type: application/json'")
 	flag.StringVar(&body, "data", body, "HTTP POST方式传送数据")
 	// 解析参数
@@ -63,14 +65,14 @@ func main() {
 		return
 	}
 	debug := strings.ToLower(debugStr) == "true"
-	request, err := model.NewRequest(requestURL, verify, 0, debug, path, headers, body)
+	// todo 改一下  改成把数据都读出来  然后生成 一个巨大的hashmap  然后后面用的时候  随机使用一个
+	requests, err := model.NewRequestMult(requestURL, verify, 0, debug, path, method)
 	if err != nil {
 		fmt.Printf("参数不合法 %v \n", err)
 		return
 	}
 	fmt.Printf("\n 开始启动  并发数:%d 请求数:%d 请求参数: \n", concurrency, totalNumber)
-	request.Print()
 	// 开始处理
-	server.Dispose(concurrency, totalNumber, request)
+	server.Dispose(concurrency, totalNumber, requests)
 	return
 }
