@@ -43,7 +43,6 @@ func HTTP(chanID uint64, ch chan<- *model.RequestResults, totalNumber uint64, wg
 		requestResults.SetID(chanID, i)
 		ch <- requestResults
 	}
-
 	return
 }
 

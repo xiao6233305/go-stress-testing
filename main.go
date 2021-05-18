@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"time"
 
 	"go-stress-testing/model"
 	"go-stress-testing/server"
@@ -66,7 +67,7 @@ func main() {
 	}
 	debug := strings.ToLower(debugStr) == "true"
 	// todo 改一下  改成把数据都读出来  然后生成 一个巨大的hashmap  然后后面用的时候  随机使用一个
-	requests, err := model.NewRequestMult(requestURL, verify, 0, debug, path, method)
+	requests, err := model.NewRequestMult(requestURL, verify, 15*time.Second, debug, path, method)
 	if err != nil {
 		fmt.Printf("参数不合法 %v \n", err)
 		return
